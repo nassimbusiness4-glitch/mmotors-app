@@ -1,0 +1,28 @@
+# Nom du pipeline affiché sur GitHub
+name: Pipeline M-Motors
+
+# Quand le lancer : à chaque push sur main et à chaque pull request
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # Machine Linux prêtée par GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Installer les outils
+        run: pip install -r requirements.txt
+
+      - name: Lancer MY Test
+        run: pytest
