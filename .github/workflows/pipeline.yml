@@ -26,3 +26,34 @@ jobs:
 
       - name: Lancer MY Test
         run: pytest
+
+  build:
+    # Attend que le test soit vert
+    needs: test
+    # Seulement après un merge sur main, pas sur une pull request
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Se connecter à AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Se connecter à ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construire et envoyer l'image
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/mmotors-app
+        run: |
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+    
