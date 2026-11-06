@@ -57,3 +57,21 @@ jobs:
           docker push $IMAGE:${{ github.sha }}
           docker push $IMAGE:latest
     
+  deploy:
+    # Attend que l'image soit envoyée sur ECR
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Se connecter à AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Relancer ECS avec la nouvelle image
+        run: aws ecs update-service --cluster mmotors-cluster --service mmotors-app --force-new-deployment
+
+      - name: Attendre que le déploiement soit terminé
+        run: aws ecs wait services-stable --cluster mmotors-cluster --services mmotors-app

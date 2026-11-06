@@ -12,5 +12,5 @@ def test_my_test():
     # La page doit marcher (200 = OK)
     assert reponse.status_code == 200
 
-    # La page doit afficher Hello World
-    assert reponse.json() == {"message": "Hello World"}
+    # La page doit afficher Hello M-Motors
+    assert reponse.json() == {"message": "Hello M-Motors"}
