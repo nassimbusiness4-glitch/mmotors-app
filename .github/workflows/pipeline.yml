@@ -1,11 +1,14 @@
 # Nom du pipeline affiché sur GitHub
 name: Pipeline M-Motors
 
-# Quand le lancer : à chaque push sur main et à chaque pull request
+
+# Quand le lancer : à chaque push sur main, à chaque pull request, ou à la main
 on:
   push:
     branches: [main]
   pull_request:
+  # Permet de lancer le pipeline à la main (bouton "Run workflow")
+  workflow_dispatch:
 
 jobs:
   test:
@@ -30,8 +33,8 @@ jobs:
   build:
     # Attend que le test soit vert
     needs: test
-    # Seulement après un merge sur main, pas sur une pull request
-    if: github.event_name == 'push'
+    # Pas sur une pull request, car (on verifie sans livrer)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
